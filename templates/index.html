@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <h1>
+    My buggy editor
+  </h1>
+
+  <div class="spacer">
+    <a href="/new" class="button">Make Multiple buggies</a>
+    <a href="/buggy" class="button">Show buggy</a>
+    <a href="/json" class="button">Get buggy JSON</a>
+    <a href="/info" class="button">Show cost</a>
+  </div>
+
+    <img id = "myImage" src="https://i.gifer.com/7lP6.gif">
+
+  <p>
+    Use this editor to specify a racing buggy. The editor saves it in its
+    little database and generates JSON data for the buggy. This is the data you
+    need to supply when you log into the
+    <strong><a href="{{ server_url }}">race server</a></strong>
+    and enter your buggy into the next race.
+  </p>
+  <p>
+    Remember that if your data is not accepted by the race server, your buggy
+    will be disqualified from that race... so make sure you program your editor
+    correctly.
+  </p>
+
+{% endblock %}
