@@ -25,26 +25,46 @@ def fetch_race_specs():
         # Find all tables in the HTML
         tables = soup.find_all('table', {'class': 'table'})
 
+        var = 0
+
         # Iterate over each table
         for table in tables:
+            var = var + 1
             # Iterate over each row in the table body
             for row in table.find('tbody').find_all('tr'):
                 cols = row.find_all('td')
-                if len(cols) >= 3:  # Ensure there are enough columns
-                    item = cols[0].text.strip()
-                    cost = cols[2].text.strip()
-                    if cost == '-' or cost == '—':  # Handle both hyphen and em dash
-                        cost = 0
-                    else:
-                        try:
-                            cost = int(cost)
-                        except ValueError:
+                if var == 2:
+                    if len(cols) >= 3:  # Ensure there are enough columns
+                        item = cols[2].text.strip()
+                        cost = cols[3].text.strip()
+                        if cost == '-' or cost == '—':  # Handle both hyphen and em dash
                             cost = 0
-                    # Add the item and cost to the dictionary
-                    items_cost_dict[item] = cost
+                        if "*" in cost:
+                            cost = cost.replace("*", " ")
+                            cost = int(cost)
+                        else:
+                            try:
+                                cost = int(cost)
+                            except ValueError:
+                                cost = 0
+                        # Add the item and cost to the dictionary
+                        items_cost_dict[item] = cost
+                else:
+                    if len(cols) >= 3:  # Ensure there are enough columns
+                        item = cols[1].text.strip()
+                        cost = cols[2].text.strip()
+                        if cost == '-' or cost == '—':  # Handle both hyphen and em dash
+                            cost = 0
+                        else:
+                            try:
+                                cost = int(cost)
+                            except ValueError:
+                                cost = 0
+                        # Add the item and cost to the dictionary
+                        items_cost_dict[item] = cost
         print(items_cost_dict)
+        return items_cost_dict
 
-fetch_race_specs()
 
 @app.route('/')
 def home():
@@ -97,12 +117,19 @@ def create_buggy():
             violation = "The secondary flag color must be different from the primary color unless the pattern is plain."
             return render_template("updated.html", violation=violation)
 
-        if not qty_tyres >= qty_wheels:
-            violation = "The number of tyres (includes spares). Must be equal to or greater than the number of wheels"
+        if int(qty_tyres) < int(qty_wheels):
+            violation = "The number of tyres (includes spares) must be equal to or greater than the number of wheels."
             return render_template("updated.html", violation=violation)
 
-        # Calculate total cost here (assuming you want to integrate this logic)
-        # total_cost = calculate_total_cost(...)
+        # Fetch race specs
+        race_specs = fetch_race_specs()
+
+        # Calculate the total cost
+        if power_type in race_specs:
+            print(power_units, race_specs[power_type])
+            total_cost += int(power_units) * race_specs[power_type]
+        if tyres in race_specs:
+            total_cost += int(qty_tyres) * race_specs[tyres]
 
         try:
             with sql.connect(DATABASE_FILE) as con:
@@ -153,7 +180,9 @@ def summary():
     return jsonify({key: val for key, val in buggies if (val != "" and val is not None)})
 
 
+fetch_race_specs()
+
 if __name__ == '__main__':
     alloc_port = os.environ.get('CS1999_PORT') or 5000
-    debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true' #not sure about this
+    debug_mode = os.environ.get('FLASK_DEBUG', 'true').lower() == 'true'
     app.run(debug=debug_mode, host="0.0.0.0", port=alloc_port)
