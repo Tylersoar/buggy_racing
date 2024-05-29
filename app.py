@@ -25,15 +25,15 @@ def fetch_race_specs():
         # Find all tables in the HTML
         tables = soup.find_all('table', {'class': 'table'})
 
-        var = 0
+        index = 0
 
         # Iterate over each table
         for table in tables:
-            var = var + 1
+            index = index + 1
             # Iterate over each row in the table body
             for row in table.find('tbody').find_all('tr'):
                 cols = row.find_all('td')
-                if var == 2:
+                if index == 2:
                     if len(cols) >= 3:  # Ensure there are enough columns
                         item = cols[2].text.strip()
                         cost = cols[3].text.strip()
@@ -49,9 +49,12 @@ def fetch_race_specs():
                                 cost = 0
                         # Add the item and cost to the dictionary
                         items_cost_dict[item] = cost
+
+
+
                 else:
                     if len(cols) >= 3:  # Ensure there are enough columns
-                        item = cols[1].text.strip()
+                        item = cols[0].text.strip()
                         cost = cols[2].text.strip()
                         if cost == '-' or cost == '—':  # Handle both hyphen and em dash
                             cost = 0
@@ -62,7 +65,8 @@ def fetch_race_specs():
                                 cost = 0
                         # Add the item and cost to the dictionary
                         items_cost_dict[item] = cost
-        print(items_cost_dict)
+
+
         return items_cost_dict
 
 
@@ -100,36 +104,37 @@ def create_buggy():
         flag_color = request.form['flag_color'].strip()
         flag_color_secondary = request.form['flag_color_secondary'].strip()
         flag_pattern = request.form['flag_pattern'].strip()
-        total_cost = 0  # Placeholder for total cost calculation
+        total_cost = 0
+        attack = request.form['attack'].strip()
+        armour = request.form['armour'].strip()
 
         # Validate numeric fields
         if not qty_wheels.isdigit() or int(qty_wheels) % 2 != 0:
             violation = "Quantity of wheels must be an even integer."
-            return render_template("updated.html", violation=violation)
-        if not power_units.isdigit():
+
+        elif not power_units.isdigit():
             violation = "Power units must be an integer."
-            return render_template("updated.html", violation=violation)
-        if not qty_tyres.isdigit():
+
+        elif not qty_tyres.isdigit():
             violation = "Quantity of tyres must be an integer."
-            return render_template("updated.html", violation=violation)
 
-        if flag_pattern != "plain" and flag_color == flag_color_secondary:
+        elif flag_pattern != "plain" and flag_color == flag_color_secondary:
             violation = "The secondary flag color must be different from the primary color unless the pattern is plain."
-            return render_template("updated.html", violation=violation)
 
-        if int(qty_tyres) < int(qty_wheels):
+        elif int(qty_tyres) < int(qty_wheels):
             violation = "The number of tyres (includes spares) must be equal to or greater than the number of wheels."
+
+
+
+        if violation:
             return render_template("updated.html", violation=violation)
 
-        # Fetch race specs
+        # Fetch race specs and calculates total costs
         race_specs = fetch_race_specs()
-
-        # Calculate the total cost
-        if power_type in race_specs:
-            print(power_units, race_specs[power_type])
-            total_cost += int(power_units) * race_specs[power_type]
-        if tyres in race_specs:
-            total_cost += int(qty_tyres) * race_specs[tyres]
+        total_cost += race_specs[armour]
+        total_cost += race_specs[attack]
+        total_cost += int(power_units) * race_specs[power_type]
+        total_cost += int(qty_tyres) * race_specs[tyres]
 
         try:
             with sql.connect(DATABASE_FILE) as con:
@@ -137,10 +142,10 @@ def create_buggy():
                 cur.execute(
                     """UPDATE buggies
                        SET qty_wheels=?, power_type=?, power_units=?, qty_tyres=?, tyres=?,
-                           flag_color=?, flag_color_secondary=?, flag_pattern=?, total_cost=?
+                           flag_color=?, flag_color_secondary=?, flag_pattern=?,armour=?, attack=?, total_cost=?
                        WHERE id=?""",
                     (qty_wheels, power_type, power_units, qty_tyres, tyres,
-                     flag_color, flag_color_secondary, flag_pattern, total_cost, DEFAULT_BUGGY_ID)
+                     flag_color, flag_color_secondary, flag_pattern, armour, attack, total_cost, DEFAULT_BUGGY_ID)
                 )
                 con.commit()
                 msg = "Record successfully saved"
@@ -185,4 +190,4 @@ fetch_race_specs()
 if __name__ == '__main__':
     alloc_port = os.environ.get('CS1999_PORT') or 5000
     debug_mode = os.environ.get('FLASK_DEBUG', 'true').lower() == 'true'
-    app.run(debug=debug_mode, host="0.0.0.0", port=alloc_port)
+    app.run(debug=debug_mode, host="0.0.0.0", port=int(alloc_port))
