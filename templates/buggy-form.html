@@ -4,10 +4,6 @@
 
 <h1>Make or edit buggy </h1>
 
-<div class="slidecontainer">
-  <input type="range" min="1" max="1000" value="50" class="slider" id="myRange">
-</div>
-
 <table>
     <tr>
         <td>ID:</td>
@@ -46,15 +42,22 @@
         <td> {{ buggy['flag_pattern'] }}</td>
     </tr>
     <tr>
+        <td>Type of armour:</td>
+        <td> {{ buggy['armour'] }}</td>
+    </tr>
+    <tr>
+        <td>Offensive capability:</td>
+        <td> {{ buggy['attack'] }}</td>
+    </tr>
+    <tr>
         <td>Cost:</td>
         <td> {{ buggy['total_cost'] }}</td>
     </tr>
 </table>
 
-
 <form action="/new" method="post">
     <label for="qty_wheels">Number of wheels:</label>
-    <input type="text" name="qty_wheels"/>
+    <input type="text" name="qty_wheels" id="qty_wheels"/>
 
     <label for="power_type">Power Type:</label>
     <select name="power_type" id="power_type" style="font-size:20px;">
@@ -64,60 +67,150 @@
         <option value="bio">Bio-fuelled internal combustion engine</option>
         <option value="electric">Lithium-ion battery</option>
         <option value="rocket">Rocket fuel</option>
-        <option value="hamster">hamster</option>
+        <option value="hamster">Hamster</option>
         <option value="thermo">Thermonuclear reactor</option>
         <option value="solar">Bank of solar panels</option>
         <option value="wind">Sailing rig</option>
     </select>
 
     <label for="power_units">Number of Primary Power Units:</label>
-    <input type="text" name="power_units"/>
+    <input type="text" name="power_units" id="power_units"/>
 
     <label for="qty_tyres">Number of tyres:</label>
-    <input type="text" name="qty_tyres"/>
+    <input type="text" name="qty_tyres" id="qty_tyres"/>
 
     <label for="tyres">Type of tyres:</label>
     <select name="tyres" id="tyres" style="font-size:20px;">
-        <option value="knobbly">knobbly</option>
-        <option value="maglev">maglev</option>
-        <option value="reactive">reactive</option>
-        <option value="slick">slick</option>
-        <option value="steelband">steelband</option>
+        <option value="knobbly">Knobbly</option>
+        <option value="maglev">Maglev</option>
+        <option value="reactive">Reactive</option>
+        <option value="slick">Slick</option>
+        <option value="steelband">Steelband</option>
     </select>
 
     <label for="flag_color">Color of flag:</label>
     <select name="flag_color" id="flag_color" style="font-size:20px;">
-        <option value="red">red</option>
-        <option value="yellow">yellow</option>
-        <option value="green">green</option>
-        <option value="blue">blue</option>
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
     </select>
 
     <label for="flag_color_secondary">Secondary colour of flags:</label>
     <select name="flag_color_secondary" id="flag_color_secondary" style="font-size:20px;">
-        <option value="red">red</option>
-        <option value="yellow">yellow</option>
-        <option value="green">green</option>
-        <option value="blue">blue</option>
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
     </select>
 
     <label for="flag_pattern">Pattern of flag:</label>
     <select name="flag_pattern" id="flag_pattern" style="font-size:20px;">
-        <option value="check">check</option>
-        <option value="dstripe">dstripe</option>
-        <option value="hstripe">hstripe</option>
-        <option value="plain">plain</option>
-        <option value="spot">spot</option>
-        <option value="vstripe">vstripe</option>
+        <option value="check">Check</option>
+        <option value="dstripe">Double Stripe</option>
+        <option value="hstripe">Horizontal Stripe</option>
+        <option value="plain">Plain</option>
+        <option value="spot">Spot</option>
+        <option value="vstripe">Vertical Stripe</option>
     </select>
 
-    <input type="submit" class="button">
+    <label for="armour">Type of armour:</label>
+    <select name="armour" id="armour" style="font-size:20px;">
+        <option value="none">None</option>
+        <option value="wood">Wood</option>
+        <option value="aluminium">Aluminium</option>
+        <option value="thinsteel">Thin Steel</option>
+        <option value="thicksteel">Thick Steel</option>
+        <option value="titanium">Titanium</option>
+    </select>
 
+    <label for="attack">Offensive capability:</label>
+    <select name="attack" id="attack" style="font-size:20px;">
+        <option value="none">None</option>
+        <option value="spike">Spike</option>
+        <option value="flame">Flame</option>
+        <option value="charge">Charge</option>
+        <option value="biohazard">Biohazard</option>
+    </select>
 
+    <label for="cost">Cost Limit:</label>
+    <input type="range" id="cost_slider" name="cost" min="70" max="1000" value="500" oninput="updateCostValue(this.value)">
+    <span id="cost_value">500</span>
+
+    <input type="button" value="Auto-fill" onclick="autoFillForm()" class="button"/>
+    <input type="submit" class="button"/>
 </form>
 
 <p>
-    <a href="/" class="button">home</a>
+    <a href="/" class="button">Home</a>
 </p>
+
+
+<script>
+    function updateCostValue(value) {
+        document.getElementById('cost_value').innerText = value;
+    }
+
+    function autoFillForm() {
+        const costLimit = document.getElementById('cost_slider').value;
+        let qty_wheels, power_type, power_units, qty_tyres, tyres, flag_color, flag_color_secondary, flag_pattern, armour, attack;
+         if (costLimit <= 200) {
+            qty_wheels = '4';
+            power_type = 'hamster';
+            power_units = '1';
+            qty_tyres = '4';
+            tyres = 'knobbly';
+            flag_color = 'yellow';
+            flag_color_secondary = 'yellow';
+            flag_pattern = 'plain';
+            armour = 'none';
+            attack = 'none';
+        } else if (costLimit <= 500) {
+            qty_wheels = '4';
+            power_type = 'petrol';
+            power_units = '1';
+            qty_tyres = '4';
+            tyres = 'slick';
+            flag_color = 'blue';
+            flag_color_secondary = 'green';
+            flag_pattern = 'dstripe';
+            armour = 'wood';
+            attack = 'spike';
+        } else if (costLimit <= 800) {
+            qty_wheels = '4';
+            power_type = 'electric';
+            power_units = '2';
+            qty_tyres = '4';
+            tyres = 'reactive';
+            flag_color = 'green';
+            flag_color_secondary = 'blue';
+            flag_pattern = 'spot';
+            armour = 'aluminium';
+            attack = 'flame';
+        } else {
+            qty_wheels = '4';
+            power_type = 'fusion';
+            power_units = '3';
+            qty_tyres = '4';
+            tyres = 'maglev';
+            flag_color = 'yellow';
+            flag_color_secondary = 'red';
+            flag_pattern = 'check';
+            armour = 'titanium';
+            attack = 'biohazard';
+        }
+
+         document.getElementById('qty_wheels').value = qty_wheels;
+        document.getElementById('power_type').value = power_type;
+        document.getElementById('power_units').value = power_units;
+        document.getElementById('qty_tyres').value = qty_tyres;
+        document.getElementById('tyres').value = tyres;
+        document.getElementById('flag_color').value = flag_color;
+        document.getElementById('flag_color_secondary').value = flag_color_secondary;
+        document.getElementById('flag_pattern').value = flag_pattern;
+        document.getElementById('armour').value = armour;
+        document.getElementById('attack').value = attack;
+    }
+</script>
 
 {% endblock %}
