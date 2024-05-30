@@ -214,3 +214,222 @@
 </script>
 
 {% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Make buggy</h1>
+
+<table>
+    <tr>
+        <td>ID:</td>
+        <td> {{ buggy['id'] }}</td>
+    </tr>
+    <tr>
+        <td>Wheels:</td>
+        <td> {{ buggy['qty_wheels'] }}</td>
+    </tr>
+    <tr>
+        <td>Power Type:</td>
+        <td> {{ buggy['power_type'] }}</td>
+    </tr>
+    <tr>
+        <td>Number Of Primary Power Units:</td>
+        <td> {{ buggy['power_units'] }}</td>
+    </tr>
+    <tr>
+        <td>Number Of Tyres:</td>
+        <td> {{ buggy['qty_tyres'] }}</td>
+    </tr>
+    <tr>
+        <td>Type Of Tyres:</td>
+        <td> {{ buggy['tyres'] }}</td>
+    </tr>
+    <tr>
+        <td>Flag:</td>
+        <td> {{ buggy['flag_color'] }}</td>
+    </tr>
+    <tr>
+        <td>Secondary colour of flags:</td>
+        <td> {{ buggy['flag_color_secondary'] }}</td>
+    </tr>
+     <tr>
+        <td>Pattern of flag:</td>
+        <td> {{ buggy['flag_pattern'] }}</td>
+    </tr>
+    <tr>
+        <td>Type of armour:</td>
+        <td> {{ buggy['armour'] }}</td>
+    </tr>
+    <tr>
+        <td>Offensive capability:</td>
+        <td> {{ buggy['attack'] }}</td>
+    </tr>
+    <tr>
+        <td>Cost:</td>
+        <td> {{ buggy['total_cost'] }}</td>
+    </tr>
+</table>
+
+<form action="/new" method="post">
+    <label for="id">ID:</label>
+    <input type="text" name="id" id="id"/>
+
+    <label for="qty_wheels">Number of wheels:</label>
+    <input type="text" name="qty_wheels" id="qty_wheels"/>
+
+    <label for="power_type">Power Type:</label>
+    <select name="power_type" id="power_type" style="font-size:20px;">
+        <option value="petrol">Petroleum-fuelled internal combustion engine</option>
+        <option value="fusion">Fusion reactor</option>
+        <option value="steam">Steam engine</option>
+        <option value="bio">Bio-fuelled internal combustion engine</option>
+        <option value="electric">Lithium-ion battery</option>
+        <option value="rocket">Rocket fuel</option>
+        <option value="hamster">Hamster</option>
+        <option value="thermo">Thermonuclear reactor</option>
+        <option value="solar">Bank of solar panels</option>
+        <option value="wind">Sailing rig</option>
+    </select>
+
+    <label for="power_units">Number of Primary Power Units:</label>
+    <input type="text" name="power_units" id="power_units"/>
+
+    <label for="qty_tyres">Number of tyres:</label>
+    <input type="text" name="qty_tyres" id="qty_tyres"/>
+
+    <label for="tyres">Type of tyres:</label>
+    <select name="tyres" id="tyres" style="font-size:20px;">
+        <option value="knobbly">Knobbly</option>
+        <option value="maglev">Maglev</option>
+        <option value="reactive">Reactive</option>
+        <option value="slick">Slick</option>
+        <option value="steelband">Steelband</option>
+    </select>
+
+    <label for="flag_color">Color of flag:</label>
+    <select name="flag_color" id="flag_color" style="font-size:20px;">
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+    </select>
+
+    <label for="flag_color_secondary">Secondary colour of flags:</label>
+    <select name="flag_color_secondary" id="flag_color_secondary" style="font-size:20px;">
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+    </select>
+
+    <label for="flag_pattern">Pattern of flag:</label>
+    <select name="flag_pattern" id="flag_pattern" style="font-size:20px;">
+        <option value="check">Check</option>
+        <option value="dstripe">Double Stripe</option>
+        <option value="hstripe">Horizontal Stripe</option>
+        <option value="plain">Plain</option>
+        <option value="spot">Spot</option>
+        <option value="vstripe">Vertical Stripe</option>
+    </select>
+
+    <label for="armour">Type of armour:</label>
+    <select name="armour" id="armour" style="font-size:20px;">
+        <option value="none">None</option>
+        <option value="wood">Wood</option>
+        <option value="aluminium">Aluminium</option>
+        <option value="thinsteel">Thin Steel</option>
+        <option value="thicksteel">Thick Steel</option>
+        <option value="titanium">Titanium</option>
+    </select>
+
+    <label for="attack">Offensive capability:</label>
+    <select name="attack" id="attack" style="font-size:20px;">
+        <option value="none">None</option>
+        <option value="spike">Spike</option>
+        <option value="flame">Flame</option>
+        <option value="charge">Charge</option>
+        <option value="biohazard">Biohazard</option>
+    </select>
+
+    <label for="cost">Cost Limit:</label>
+    <input type="range" id="cost_slider" name="cost" min="70" max="1000" value="500" oninput="updateCostValue(this.value)">
+    <span id="cost_value">500</span>
+
+    <input type="button" value="Auto-fill" onclick="autoFillForm()" class="button"/>
+    <input type="submit" class="button"/>
+</form>
+
+<p>
+    <a href="/" class="button">Home</a>
+</p>
+
+
+<script>
+    function updateCostValue(value) {
+        document.getElementById('cost_value').innerText = value;
+    }
+
+    function autoFillForm() {
+        const costLimit = document.getElementById('cost_slider').value;
+        let qty_wheels, power_type, power_units, qty_tyres, tyres, flag_color, flag_color_secondary, flag_pattern, armour, attack;
+         if (costLimit <= 200) {
+            qty_wheels = '4';
+            power_type = 'bio';
+            power_units = '10';
+            qty_tyres = '4';
+            tyres = 'steelband';
+            flag_color = 'yellow';
+            flag_color_secondary = 'yellow';
+            flag_pattern = 'plain';
+            armour = 'wood';
+            attack = 'biohazard';
+        } else if (costLimit <= 500) {
+            qty_wheels = '4';
+            power_type = 'rocket';
+            power_units = '10';
+            qty_tyres = '4';
+            tyres = 'reactive';
+            flag_color = 'blue';
+            flag_color_secondary = 'green';
+            flag_pattern = 'dstripe';
+            armour = 'thinsteel';
+            attack = 'flame';
+        } else if (costLimit <= 800) {
+            qty_wheels = '4';
+            power_type = 'electric';
+            power_units = '10';
+            qty_tyres = '4';
+            tyres = 'maglev';
+            flag_color = 'green';
+            flag_color_secondary = 'blue';
+            flag_pattern = 'spot';
+            armour = 'titanium';
+            attack = 'biohazard';
+        } else {
+            qty_wheels = '6';
+            power_type = 'fusion';
+            power_units = '1';
+            qty_tyres = '6';
+            tyres = 'maglev';
+            flag_color = 'yellow';
+            flag_color_secondary = 'red';
+            flag_pattern = 'check';
+            armour = 'titanium';
+            attack = 'biohazard';
+        }
+
+         document.getElementById('qty_wheels').value = qty_wheels;
+        document.getElementById('power_type').value = power_type;
+        document.getElementById('power_units').value = power_units;
+        document.getElementById('qty_tyres').value = qty_tyres;
+        document.getElementById('tyres').value = tyres;
+        document.getElementById('flag_color').value = flag_color;
+        document.getElementById('flag_color_secondary').value = flag_color_secondary;
+        document.getElementById('flag_pattern').value = flag_pattern;
+        document.getElementById('armour').value = armour;
+        document.getElementById('attack').value = attack;
+    }
+</script>
+
+{% endblock %}
