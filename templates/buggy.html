@@ -56,6 +56,13 @@
         </tr>
             <td colspan="2"><a href="/edit/{{ buggy['id'] }}">edit me</a></td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <a href="/delete/{{ buggy['id'] }}" onclick="return confirm('Are you sure you want to delete this buggy?');">Delete</a>
+
+
+            </td>
+        </tr>
     </table>
 {% endfor %}
 
