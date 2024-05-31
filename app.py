@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, jsonify
 import os
 import sqlite3 as sql
@@ -88,7 +89,7 @@ def create_buggy():
         cur.execute("SELECT * FROM buggies WHERE id=?", (DEFAULT_BUGGY_ID,))
         record = cur.fetchone()
         con.close()
-        return render_template("buggy-form.html", buggy=record)
+        return render_template("buggy-form.html", buggy=None)
 
     elif request.method == 'POST':
         msg = ""
@@ -138,14 +139,16 @@ def create_buggy():
         try:
             with sql.connect(DATABASE_FILE) as con:
                 cur = con.cursor()
-                if buggy_id:
+                if buggy_id != 'id':
+                    print(f"{buggy_id} is buggy id")
                     cur.execute(
                         """UPDATE buggies
-                                SET qty_wheels=?, power_type=?, power_units=?, qty_tyres=?, tyres=?,flag_color=?, flag_color_secondary=?, flag_pattern=?,armour=?, attack=?, total_cost=WHERE id=?""",
+                                SET qty_wheels=?, power_type=?, power_units=?, qty_tyres=?, tyres=?,flag_color=?, flag_color_secondary=?, flag_pattern=?,armour=?, attack=?, total_cost=? WHERE id=?""",
                         (qty_wheels, power_type, power_units, qty_tyres, tyres,
                          flag_color, flag_color_secondary, flag_pattern, armour, attack, total_cost, buggy_id)
                     )
                 else:
+                    print("no buggy id")
                     cur.execute(
                         """INSERT INTO buggies (qty_wheels, power_type, power_units, qty_tyres, tyres, flag_color, flag_color_secondary, flag_pattern, armour, attack, total_cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (qty_wheels, power_type, power_units, qty_tyres, tyres, flag_color, flag_color_secondary,
@@ -194,6 +197,22 @@ def summary():
     con.close()
     return jsonify({key: val for key, val in buggies if (val != "" and val is not None)})
 
+@app.route('/delete/<buggy_id>')
+def delete_buggy(buggy_id):
+    print("calling route")
+    try:
+        with sql.connect(DATABASE_FILE) as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM buggies WHERE id=?", (buggy_id,))
+            con.commit()
+            msg = "Buggy successfully deleted"
+    except Exception as e:
+        con.rollback()
+        msg = f"Error in delete operation: {e}"
+    finally:
+        con.close()
+    return render_template("delete.html", msg="Successfully deleted the buggy")
+
 
 fetch_race_specs()
 
@@ -201,4 +220,3 @@ if __name__ == '__main__':
     alloc_port = os.environ.get('CS1999_PORT') or 5000
     debug_mode = os.environ.get('FLASK_DEBUG', 'true').lower() == 'true'
     app.run(debug=debug_mode, host="0.0.0.0", port=int(alloc_port))
-
