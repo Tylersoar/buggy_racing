@@ -56,8 +56,8 @@
 </table>
 
 <form action="/new" method="post">
-    <label for="id">ID:</label>
-    <input type="text" name="id" id="id"/>
+
+    <input type="hidden" name="id" value={{buggy['id'] or 'id'}} />
 
     <label for="qty_wheels">Number of wheels:</label>
     <input type="text" name="qty_wheels" id="qty_wheels"/>
